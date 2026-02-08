@@ -2,15 +2,20 @@ from __future__ import annotations
 import pandas as pd
 
 class DataPreprocessor():
-    __slots__ = ("df", "removed_cols_", "filled_values_num_", "filled_values_cat_")
+    __slots__ = ("df", "removed_cols_", "filled_values_num_", "filled_values_cat_", "onehot_cols_", "normalized_params_",)
 
     def __init__(self, df: pd.DataFrame):
         self.df = pd.DataFrame(df).copy() # copy so DataPreprocessor class owns the DataFrame
         self.removed_cols_ = []
         self.filled_values_num_ = None
         self.filled_values_cat_ = {}
+        self.onehot_cols_ = None
+        self.normalized_params_ = {}
 
-    def remove_missing(self, 
+    # Removes columns with % of missing values above threshold
+    # Fills the rest with median / mean / mode
+    # Returns modified DataFrame, optionally removed columns
+    def remove_missing(self,
                        threshold: float=50,          # percentage
                        num_strategy: str = "median", # "median" or "mean"
                        cat_strategy: str = "mode",   # only "mode"
@@ -57,3 +62,42 @@ class DataPreprocessor():
 
         self.df = df_filtered
         return (df_filtered, df_removed) if return_removed else df_filtered
+
+    # One-hot encoding of categorical columns
+    # Returns modified DataFrame
+    def encode_categorical(self):
+        cat_cols = self.df.select_dtypes(include=["string", "object", "category"]).columns
+        self.df = pd.get_dummies(self.df, columns=cat_cols, drop_first=False) # each variable is converted into 0s/1s
+        self.onehot_cols_ = list(self.df.columns) # save
+        return self.df
+
+    # Normalizes numeric columns with 'minmax' or 'std'
+    # Returns modified DataFrame
+    def normalize_numeric(self, method: str="minmax"):
+        num_cols = self.df.select_dtypes(include="number").columns
+
+        if method == "minmax": # minmax
+            mn = self.df[num_cols].min()
+            mx = self.df[num_cols].max()
+            self.normalized_params_ = {"method": "minmax", "min": mn, "max": mx} # save
+
+            if (mx - mn) == 0:
+                self.df[num_cols] = 0
+            else:
+                self.df[num_cols] = (self.df[num_cols] - mn) / (mx - mn)
+
+        elif method == "std": # std
+            mean = self.df[num_cols].mean()
+            std = self.df[num_cols].std()
+            self.normalized_params_ = {"method": "std", "mean": mean, "std": std} # save
+
+            if std == 0:
+                self.df[num_cols] = 0
+            else:
+                self.df[num_cols] = (self.df[num_cols] - mean) / std
+
+        else:
+            raise ValueError("method must be 'minmax' or 'std'")
+
+        return self.df
+
