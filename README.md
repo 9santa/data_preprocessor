@@ -14,4 +14,4 @@
 
 ## Содержимое репозитория
 - `data_preprocessor.py` — реализация класса `DataPreprocessor`
-- `DataPreprocessor.ipynb` — подробная демонстрация работы на датасете Titanic (seaborn)
+- `preprocessor_demo.ipynb` — подробная демонстрация работы на датасете Titanic (seaborn)
