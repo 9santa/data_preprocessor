@@ -16,7 +16,7 @@ class DataPreprocessor():
     # Fills the rest with median / mean / mode
     # Returns modified DataFrame, optionally removed columns
     def remove_missing(self,
-                       threshold: float=50,          # percentage
+                       threshold: int=50,          # percentage
                        num_strategy: str = "median", # "median" or "mean"
                        cat_strategy: str = "mode",   # only "mode"
                        return_removed: bool = False  # whether to return removed columns or not
@@ -101,3 +101,10 @@ class DataPreprocessor():
 
         return self.df
 
+    # Full pipeline, applies all transformations
+    # Returns modified DataFrame
+    def fit_transform(self, threshold: int=50, num_strategy: str="median", method: str="minmax"):
+        self.remove_missing(threshold=threshold, num_strategy=num_strategy, cat_strategy="mode")
+        self.encode_categorical()
+        self.normalize_numeric(method=method)
+        return self.df
