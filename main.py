@@ -12,21 +12,21 @@ class DataPreprocessor():
         self.onehot_cols_ = None
         self.normalized_params_ = {}
 
-    # Removes columns with % of missing values above threshold
+    # Removes columns with fraction of missing values above threshold
     # Fills the rest with median / mean / mode
     # Returns modified DataFrame, optionally removed columns
     def remove_missing(self,
-                       threshold: int=50,          # percentage
+                       threshold: float=0.5,         # fraction (0.5 == 50%)
                        num_strategy: str = "median", # "median" or "mean"
                        cat_strategy: str = "mode",   # only "mode"
                        return_removed: bool = False  # whether to return removed columns or not
     ):
 
-        percent_missing = self.df.isnull().sum() * 100 / len(self.df)
+        frac_missing = self.df.isnull().sum() * 100 / len(self.df)
 
-        columns_removed = percent_missing[percent_missing > threshold].index
+        columns_removed = frac_missing[frac_missing > threshold].index
         self.removed_cols_ = list(columns_removed)
-        columns_to_keep = percent_missing[percent_missing <= threshold].index
+        columns_to_keep = frac_missing[frac_missing <= threshold].index
         df_removed = self.df.loc[:, columns_removed].copy()
         df_filtered = self.df.loc[:, columns_to_keep].copy()
 
