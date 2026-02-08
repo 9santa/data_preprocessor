@@ -32,7 +32,7 @@ class DataPreprocessor():
 
         # ===== numeric fill =====
         num_cols = df_filtered.select_dtypes(include="number").columns
-        if len(num_cols > 0):
+        if len(num_cols) > 0:
             fill_values: pd.Series
             if num_strategy == "median":
                 fill_values = df_filtered[num_cols].median(numeric_only=True)
