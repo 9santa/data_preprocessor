@@ -22,7 +22,7 @@ class DataPreprocessor():
                        return_removed: bool = False  # whether to return removed columns or not
     ):
 
-        frac_missing = self.df.isnull().sum() * 100 / len(self.df)
+        frac_missing = self.df.isna().mean()
 
         columns_removed = frac_missing[frac_missing > threshold].index
         self.removed_cols_ = list(columns_removed)
