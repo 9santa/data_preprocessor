@@ -108,7 +108,7 @@ class DataPreprocessor():
 
     # Full pipeline, applies all transformations
     # Returns modified DataFrame
-    def fit_transform(self, threshold: int=50, num_strategy: str="median", method: str="minmax"):
+    def fit_transform(self, threshold: float=0.5, num_strategy: str="median", method: str="minmax"):
         self.remove_missing(threshold=threshold, num_strategy=num_strategy, cat_strategy="mode")
         self.encode_categorical()
         self.normalize_numeric(method=method)
